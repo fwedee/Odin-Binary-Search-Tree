@@ -11,8 +11,6 @@ export class NodeTree{
     }
 }
 
-// New type to make demonstrate callbacks
-export type CallbackFunction = (value : number) => number;
 
 export class Tree{
     root: NodeTree | null;
@@ -106,26 +104,29 @@ private findMin(node: NodeTree): NodeTree {
         }
     }
 
-    levelOrderForEach(func: CallableFunction){
-        let queue = [this.root];
+    levelOrderForEach(func: (node: NodeTree) => void){
+        if (!this.root) return;
+
+        let queue : NodeTree[] = [this.root];
 
         while(queue.length > 0){
-            let currentNode = queue[0]
-            func(currentNode)
+            let currentNode = queue.shift()!;
+
+            func(currentNode);
+
             if (currentNode?.left) queue.push(currentNode.left)
             if (currentNode?.right) queue.push(currentNode.right)
 
-            queue.shift()
         }
     }
 
 
     //Preorder ---> root --> left --> right
-    preOderForEach(func: CallableFunction){
+    preOderForEach(func: (node: NodeTree) => void){
         if (this.root) this.preOrderForEachRec(this.root, func);
     }
 
-    preOrderForEachRec(currentNode: NodeTree, func: CallableFunction){
+    preOrderForEachRec(currentNode: NodeTree, func: (node: NodeTree) => void){
         func(currentNode)
         if (currentNode?.left){
             this.preOrderForEachRec(currentNode.left, func)
@@ -136,11 +137,11 @@ private findMin(node: NodeTree): NodeTree {
     }
 
     //Postorder ---> left --> right --> root
-    postOderForEach(func: CallableFunction){
+    postOderForEach(func: (node: NodeTree) => void){
         if (this.root) this.postOderForEachRec(this.root, func);
     }
 
-    postOderForEachRec(currentNode: NodeTree, func: CallableFunction) {
+    postOderForEachRec(currentNode: NodeTree, func: (node: NodeTree) => void) {
         if (currentNode?.left) {
            this.postOderForEachRec(currentNode.left, func)
         }
@@ -151,11 +152,11 @@ private findMin(node: NodeTree): NodeTree {
     }
 
     //Inorder --> left --> root --> right
-    inOrderForEach(func: CallableFunction){
+    inOrderForEach(func: (node: NodeTree) => void){
         if (this.root) this.inOrderForEachRec(this.root, func)
     }
 
-    inOrderForEachRec(currentNode: NodeTree, func: CallableFunction){
+    inOrderForEachRec(currentNode: NodeTree, func: (node: NodeTree) => void){
         if (currentNode?.left) {
             this.inOrderForEachRec(currentNode.left, func)
         }
@@ -198,14 +199,29 @@ private findMin(node: NodeTree): NodeTree {
         return depth;
     }
 
-    isBalanced(values: number){
+    isBalanced() : boolean {
+        let balanced = true;
 
+        this.levelOrderForEach((node) =>{
+            const leftHeight = this.getHeight(node.left);
+            const rightHeight = this.getHeight(node.right);
+
+            if (Math.abs(leftHeight - rightHeight) > 1){
+                balanced = false;
+            }
+        });
+
+        return balanced;
     }
 
     rebalance(){
+        let allNodes : number[] = [];
 
+        this.inOrderForEach((node) => {
+            allNodes.push(node.data)
+        });
+
+        this.root = Tree.buildTree(allNodes)
     }
-
-
 
 }
