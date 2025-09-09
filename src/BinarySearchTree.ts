@@ -11,6 +11,8 @@ export class NodeTree{
     }
 }
 
+// New type to make demonstrate callbacks
+export type CallbackFunction = (value : number) => number;
 
 export class Tree{
     root: NodeTree | null;
@@ -103,6 +105,107 @@ private findMin(node: NodeTree): NodeTree {
             }
         }
     }
+
+    levelOrderForEach(func: CallableFunction){
+        let queue = [this.root];
+
+        while(queue.length > 0){
+            let currentNode = queue[0]
+            func(currentNode)
+            if (currentNode?.left) queue.push(currentNode.left)
+            if (currentNode?.right) queue.push(currentNode.right)
+
+            queue.shift()
+        }
+    }
+
+
+    //Preorder ---> root --> left --> right
+    preOderForEach(func: CallableFunction){
+        if (this.root) this.preOrderForEachRec(this.root, func);
+    }
+
+    preOrderForEachRec(currentNode: NodeTree, func: CallableFunction){
+        func(currentNode)
+        if (currentNode?.left){
+            this.preOrderForEachRec(currentNode.left, func)
+        }
+        if (currentNode?.right){
+            this.preOrderForEachRec(currentNode.right, func)
+        }
+    }
+
+    //Postorder ---> left --> right --> root
+    postOderForEach(func: CallableFunction){
+        if (this.root) this.postOderForEachRec(this.root, func);
+    }
+
+    postOderForEachRec(currentNode: NodeTree, func: CallableFunction) {
+        if (currentNode?.left) {
+           this.postOderForEachRec(currentNode.left, func)
+        }
+        if (currentNode?.right) {
+           this.postOderForEachRec(currentNode.right, func)
+        }
+        func(currentNode)
+    }
+
+    //Inorder --> left --> root --> right
+    inOrderForEach(func: CallableFunction){
+        if (this.root) this.inOrderForEachRec(this.root, func)
+    }
+
+    inOrderForEachRec(currentNode: NodeTree, func: CallableFunction){
+        if (currentNode?.left) {
+            this.inOrderForEachRec(currentNode.left, func)
+        }
+        func(currentNode)
+        if (currentNode?.right) {
+            this.inOrderForEachRec(currentNode.right, func)
+        }
+    }
+
+    height(value: number) : number | null{
+        const node = this.find(value);
+        if (!node) return null;
+        return this.getHeight(node)
+    }
+
+    getHeight(node: NodeTree | null): number{
+        if (!node) return -1
+        return 1 + Math.max(
+            this.getHeight(node.left),
+            this.getHeight(node.right)
+        );
+    }
+
+    depth(value: number) : number | null {
+        let depth = -1;
+        let found = false;
+
+        const travers = (node: NodeTree | null, currentDepth: number) => {
+            if (!node || found) return;
+            if (node.data === value){
+               depth = currentDepth;
+               found = true;
+               return;
+            }
+            travers(node.left, currentDepth + 1);
+            travers(node.right, currentDepth + 1);
+        };
+
+        travers(this.root, 0);
+        return depth;
+    }
+
+    isBalanced(values: number){
+
+    }
+
+    rebalance(){
+
+    }
+
 
 
 }
